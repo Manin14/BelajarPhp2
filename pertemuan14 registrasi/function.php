@@ -148,4 +148,50 @@
     move_uploaded_file($tmpName, 'img' . $namafilebaru);
     return $namafilebaru;
    }
+
+
+   function registrasi($data){
+          global$conn;  //ambil koneksi conn
+           
+           //strtolower untuk membuat textnya kecil semua
+          //stripcslahser itu user tidak bisa input slash /
+          $username = strtolower(stripcslashes($data["username"]));
+          //mysqli_real_escape_string itu untuk bisa menyimpan kutip ke db, jika user bikin pass nya pke kutip
+          $password = mysqli_real_escape_string($conn, $data["password"]);
+          $password2 = mysqli_real_escape_string($conn, $data["password2"]);
+
+
+          //cek username yg di input sudah ada atau belum
+          $result = mysqli_query($conn, "SELECT username FROM user WHERE username = '$username' ");
+          if (mysqli_fetch_assoc($result)) {
+             echo "
+                      <script>
+                          alert('username sudah terdaftar');
+                      </script> 
+                  ";
+                  return false; //berhentikan proses
+          }
+
+          //cek apakah user menginput password yg sama dengan password kedua atau tidak
+          if ($password !== $password2) {
+               echo "
+                       <script>
+                         alert('konfirmasi password tidak sesuai')
+                       </script>
+                    ";
+                    return false; //berhentikan proses jika password tidak sesuai
+          }
+          //return 1; //ini jika pass 1 dan pass 2 sama
+
+          //enkripsi password
+          $password = password_hash($password, PASSWORD_DEFAULT);
+
+          //tambahkan user baru ke database
+          mysqli_query($conn, "INSERT INTO user VALUES ('', '$username','$password')");
+          return mysqli_affected_rows($conn);
+
+
+
+
+   }
  ?>
